@@ -11,6 +11,8 @@
 (function() {
     'use strict';
 
+    var yearRegex = /(\d{4})/;
+
     function getBlacklist() {
         var blacklist = JSON.parse(localStorage.getItem("blacklist"));
         if (!blacklist) {
@@ -24,6 +26,17 @@
         blacklist[item]=true;
         localStorage.setItem('blacklist', JSON.stringify(blacklist));
         getBlacklist();
+    }
+
+    function isBlacklisted(blacklistCopy, title) {
+        for (var key in blacklistCopy) {
+            if (title.startsWith(key)) {
+                return true;
+            }
+        }
+
+        //return blacklistCopy[title];
+        return false;
     }
 
     var table = document.getElementsByClassName("lista2t");
@@ -52,15 +65,24 @@
         var a = tds[2].getElementsByTagName("a")[0];
         var title = a.text.toLowerCase();
 
-        if (blacklistCopy[title]) {
+        if (isBlacklisted(blacklistCopy, title)) {
             tr.remove();
         } else {
             newtd.title = title;
             newtd.addEventListener('click', function(e){
-                blacklistItem(e.target.title);
-                e.target.parentNode.remove();
+
+                var matched = e.target.title.match(yearRegex);
+                var shortTitle = e.target.title;
+                if (matched && matched.length && matched.index > 0) {
+                    shortTitle=shortTitle.substring(0, matched.index+4);
+                }
+                var titleTruncated = prompt(e.target.title, shortTitle);
+
+                if (titleTruncated) {
+                  blacklistItem(titleTruncated);
+                  e.target.parentNode.remove();
+                }
             });
         }
     }
 })();
-
