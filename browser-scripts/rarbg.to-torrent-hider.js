@@ -3,7 +3,7 @@
 // @namespace    https://github.com/runraid/home
 // @version      0.1
 // @description  Removes torrents from the list of torrents (hide things you don't want to see)
-// @author       runraid
+// @author       rroller
 // @match        https://rarbg.to/*
 // @grant        none
 // ==/UserScript==
