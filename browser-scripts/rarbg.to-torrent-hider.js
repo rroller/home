@@ -11,45 +11,77 @@
 (function() {
     'use strict';
 
-    var yearRegex = /(\d{4})/;
+    const yearRegex = /(\d{4})/;
+    const table = document.getElementsByClassName("lista2t");
+    const blacklistCopy = getBlacklist();
 
     function getBlacklist() {
-        var blacklist = JSON.parse(localStorage.getItem("blacklist"));
+        const blacklist = JSON.parse(localStorage.getItem("blacklist"));
         if (!blacklist) {
-            blacklist = {};
+            return {};
         }
         return blacklist;
     }
 
     function blacklistItem(item) {
-        var blacklist = getBlacklist();
+        const blacklist = getBlacklist();
         blacklist[item]=true;
         localStorage.setItem('blacklist', JSON.stringify(blacklist));
         getBlacklist();
     }
 
     function isBlacklisted(blacklistCopy, title) {
-        for (var key in blacklistCopy) {
+        for (let key in blacklistCopy) {
             if (title.startsWith(key)) {
                 return true;
             }
         }
 
-        //return blacklistCopy[title];
         return false;
     }
 
-    var table = document.getElementsByClassName("lista2t");
-    var trs = [];
-    if (table) {
-        trs = table[0].getElementsByTagName("tr");
+    function getTitleFromRow(tr) {
+        const tds = tr.getElementsByTagName("td");
+        const a = tds[2].getElementsByTagName("a")[0];
+        if (a && a.text) {
+            return a.text.toLowerCase();
+        }
+        return null;
     }
 
-    var blacklistCopy = getBlacklist();
+    function getBlackListTitle(title) {
+        const korsub = title.toLowerCase().indexOf("korsub");
+        if (korsub > 1) {
+            return title.substring(0, korsub + "korsub".length);
+        }
 
-    for (var i = trs.length - 1; i >= 0; i--) {
-        var tr = trs[i];
-        var newtd = document.createElement('td');
+        const matched = title.match(yearRegex);
+        if (matched && matched.length && matched.index > 0) {
+            return title.substring(0, matched.index+4);
+        }
+        return title;
+    }
+
+    function recalc() {
+        console.log("doing recalc");
+        let trs = [];
+        if (table) {
+            trs = table[0].getElementsByTagName("tr");
+        }
+        for (let i = trs.length - 1; i >= 0; i--) {
+            const tr = trs[i];
+            const title = getTitleFromRow(tr);
+            if (isBlacklisted(blacklistCopy, title)) {
+                tr.remove();
+            }
+        }
+    }
+
+    const trs = table ? table[0].getElementsByTagName("tr") : [];
+
+    for (let i = trs.length - 1; i >= 0; i--) {
+        const tr = trs[i];
+        const newtd = document.createElement('td');
         tr.appendChild(newtd);
         tr.insertBefore( newtd, tr.firstChild );
 
@@ -61,26 +93,20 @@
             newtd.innerHTML = "x";
         }
 
-        var tds = tr.getElementsByTagName("td");
-        var a = tds[2].getElementsByTagName("a")[0];
-        var title = a.text.toLowerCase();
+        const title = getTitleFromRow(tr);
 
         if (isBlacklisted(blacklistCopy, title)) {
             tr.remove();
         } else {
             newtd.title = title;
             newtd.addEventListener('click', function(e){
-
-                var matched = e.target.title.match(yearRegex);
-                var shortTitle = e.target.title;
-                if (matched && matched.length && matched.index > 0) {
-                    shortTitle=shortTitle.substring(0, matched.index+4);
-                }
-                var titleTruncated = prompt(e.target.title, shortTitle);
+                let titleTruncated = getBlackListTitle(e.target.title);
+                titleTruncated = prompt(e.target.title, titleTruncated);
 
                 if (titleTruncated) {
-                  blacklistItem(titleTruncated);
-                  e.target.parentNode.remove();
+                    blacklistItem(titleTruncated.toLowerCase());
+                    e.target.parentNode.remove();
+                    recalc(); // this is not working
                 }
             });
         }
