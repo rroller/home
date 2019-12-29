@@ -50,9 +50,14 @@
     }
 
     function getBlackListTitle(title) {
-        const korsub = title.toLowerCase().indexOf("korsub");
-        if (korsub > 1) {
-            return title.substring(0, korsub + "korsub".length);
+        const tokens = ["korsub", "dvdscr"];
+        for (let i=0;i<tokens.length;i++) {
+            let token = tokens[i];
+
+            const idx = title.toLowerCase().indexOf(token);
+            if (idx > 1) {
+                return title.substring(0, idx + token.length);
+            }
         }
 
         const matched = title.match(yearRegex);
@@ -63,7 +68,6 @@
     }
 
     function recalc() {
-        console.log("doing recalc");
         let trs = [];
         if (table) {
             trs = table[0].getElementsByTagName("tr");
@@ -101,6 +105,7 @@
             newtd.title = title;
             newtd.addEventListener('click', function(e){
                 let titleTruncated = getBlackListTitle(e.target.title);
+                console.log(titleTruncated);
                 titleTruncated = prompt(e.target.title, titleTruncated);
 
                 if (titleTruncated) {
