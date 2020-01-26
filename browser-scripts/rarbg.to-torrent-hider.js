@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         rarbg torrent hider/remover
-// @namespace    https://github.com/runraid/home
+// @namespace    https://github.com/rroller/home
 // @version      0.2
 // @description  Removes torrents from the list of torrents (hide things you don't want to see)
 // @author       rroller
