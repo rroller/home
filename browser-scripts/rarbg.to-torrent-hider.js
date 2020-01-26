@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         rarbg torrent hider/remover
-// @namespace    https://github.com/rroller/home
-// @version      0.1
+// @namespace    https://github.com/runraid/home
+// @version      0.2
 // @description  Removes torrents from the list of torrents (hide things you don't want to see)
 // @author       rroller
 // @match        https://rarbg.to/*
@@ -14,6 +14,8 @@
     const yearRegex = /(\d{4})/;
     const table = document.getElementsByClassName("lista2t");
     const blacklistCopy = getBlacklist();
+    const tokens = ["korsub", "dvdscr", "screener", "stuttershit"];
+    const trs = table ? table[0].getElementsByTagName("tr") : [];
 
     function getBlacklist() {
         const blacklist = JSON.parse(localStorage.getItem("blacklist"));
@@ -50,7 +52,6 @@
     }
 
     function getBlackListTitle(title) {
-        const tokens = ["korsub", "dvdscr"];
         for (let i=0;i<tokens.length;i++) {
             let token = tokens[i];
 
@@ -80,8 +81,6 @@
             }
         }
     }
-
-    const trs = table ? table[0].getElementsByTagName("tr") : [];
 
     for (let i = trs.length - 1; i >= 0; i--) {
         const tr = trs[i];
